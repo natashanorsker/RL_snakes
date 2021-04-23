@@ -1,6 +1,13 @@
 import numpy as np
 from utils import defaultdict2
-from collections import OrderedDict
+import inspect
+import itertools
+import os
+import sys
+from collections import OrderedDict, defaultdict
+from tqdm import tqdm
+from utils import load_time_series, log_time_series, existing_runs, cache_read, cache_write
+import shutil
 
 
 # Base Agent Class:
@@ -267,8 +274,6 @@ def train(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=
     :param log_interval: Log stats less frequently
     :return: stats, trajectories (both as lists)
     """
-    from irlc import cache_write
-    from irlc import cache_read
     saveload_model = False
     temporal_policy = None
     save_stats = True
