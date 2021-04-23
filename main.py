@@ -1,3 +1,6 @@
+import irlc
+from
+
 
 # set grid size of snake map
 # N =
