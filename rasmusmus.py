@@ -31,3 +31,5 @@ while snakes_remaining != 0:
     print('Info: ' , info)
 
     env.close()
+
+

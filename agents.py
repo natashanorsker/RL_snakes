@@ -153,10 +153,44 @@ class TabularQ:
         return d
 
 
+# class QAgent(TabularAgent):
+#     """
+#     Implement the Q-learning agent here. Note that the Q-datastructure already exist
+#     (see agent class for more information)
+#     """
+#     def __init__(self, env, gamma=1.0, alpha=0.5, epsilon=0.1):
+#         self.alpha = alpha
+#         super().__init__(env, gamma, epsilon)
+#
+#     def pi(self, s, k=None):
+#         """
+#         Return current action using epsilon-greedy exploration. Look at the TabularAgent class
+#         for ideas.
+#         """
+#         return self.pi_eps()
+#         # raise NotImplementedError("Implement function body")
+#
+#     def train(self, s, a, r, sp, done=False):
+#         """
+#         Implement the Q-learning update rule, i.e. compute a* from the Q-values.
+#         As a hint, note that self.Q[sp][a] corresponds to q(s_{t+1}, a) and
+#         that what you need to update is self.Q[s][a] = ...
+#         """
+#
+#         #raise NotImplementedError("Implement function body")
+#
+#     def __str__(self):
+#         return f"QLearner_{self.gamma}_{self.epsilon}_{self.alpha}"
+
+
+
+
+#################
 class QAgent(TabularAgent):
     """
-    Implement the Q-learning agent here. Note that the Q-datastructure already exist
-    (see agent class for more information)
+    Implement the Q-learning agent (SB18, Section 6.5)
+    Note that the Q-datastructure already exist, as do helper functions useful to compute an epsilon-greedy policy
+    (see TabularAgent class for more information)
     """
     def __init__(self, env, gamma=1.0, alpha=0.5, epsilon=0.1):
         self.alpha = alpha
@@ -167,17 +201,22 @@ class QAgent(TabularAgent):
         Return current action using epsilon-greedy exploration. Look at the TabularAgent class
         for ideas.
         """
-        # TODO: 1 lines missing.
+        return self.pi_eps()
         raise NotImplementedError("Implement function body")
 
     def train(self, s, a, r, sp, done=False):
         """
         Implement the Q-learning update rule, i.e. compute a* from the Q-values.
-        As a hint, note that self.Q[sp][a] corresponds to q(s_{t+1}, a) and
-        that what you need to update is self.Q[s][a] = ...
+        As a hint, note that self.Q[sp,a] corresponds to q(s_{t+1}, a) and
+        that what you need to update is self.Q[s, a] = ...
+
+        You may want to look at self.Q.get_optimal_action(state) to compute a = argmax_a Q[s,a].
         """
-        # TODO: 13 lines missing.
-        raise NotImplementedError("Implement function body")
+        astar = self.Q.get_optimal_action(sp)
+        maxQ = self.Q[sp][astar]
+        self.Q[s][a] = self.Q[s][a] + self.alpha * (r + self.gamma * maxQ - self.Q[s][a])
+        # raise NotImplementedError("Implement function body")
 
     def __str__(self):
         return f"QLearner_{self.gamma}_{self.epsilon}_{self.alpha}"
+
