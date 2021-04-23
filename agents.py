@@ -45,6 +45,45 @@ class Agent:
         return {}
 
 
+class TabularQ:
+    """
+    Tabular Q-values. This is a helper class for the Q-agent to store Q-values without too much hassle with
+    state-dependent action spaces and so on.
+    """
+
+    def __init__(self, env):
+        # This may need to be changed (s in P)
+        qfun = lambda s: OrderedDict({a: 0 for a in (env.P[s] if hasattr(env, 'P') else range(env.action_space.n))})
+        self.q_ = defaultdict2(lambda s: qfun(s))
+        self.env = env
+
+    def get_Qs(self, state):
+        (actions, Qa) = zip(*self.q_[state].items())
+        return tuple(actions), tuple(Qa)
+
+    def get_optimal_action(self, state):
+        actions, Qa = self.get_Qs(state)
+        a_ = np.argmax(np.asarray(Qa) + np.random.rand(len(Qa)) * 1e-8)
+        return actions[a_]
+
+    def __getitem__(self, state_comma_action):
+        s, a = state_comma_action
+        return self.q_[s][a]
+
+    def __setitem__(self, state_comma_action, q_value):
+        s, a = state_comma_action
+        self.q_[s][a] = q_value
+
+    def items(self):  # not sure this is used
+        raise Exception()
+        return self.q_.items()
+
+    def to_dict(self):
+        # Convert to a regular dictionary
+        d = {s: {a: Q for a, Q in Qs.items()} for s, Qs in self.q_.items()}
+        return d
+
+
 class TabularAgent(Agent):
     """
     The self.Q variable is a custom datastructure to save the Q(s,a)-values.
@@ -112,45 +151,6 @@ class ValueAgent(TabularAgent):
 
     def value(self, s):
         return self.v[s]
-
-
-class TabularQ:
-    """
-    Tabular Q-values. This is a helper class for the Q-agent to store Q-values without too much hassle with
-    state-dependent action spaces and so on.
-    """
-
-    def __init__(self, env):
-        # This may need to be changed (s in P)
-        qfun = lambda s: OrderedDict({a: 0 for a in (env.P[s] if hasattr(env, 'P') else range(env.action_space.n))})
-        self.q_ = defaultdict2(lambda s: qfun(s))
-        self.env = env
-
-    def get_Qs(self, state):
-        (actions, Qa) = zip(*self.q_[state].items())
-        return tuple(actions), tuple(Qa)
-
-    def get_optimal_action(self, state):
-        actions, Qa = self.get_Qs(state)
-        a_ = np.argmax(np.asarray(Qa) + np.random.rand(len(Qa)) * 1e-8)
-        return actions[a_]
-
-    def __getitem__(self, state_comma_action):
-        s, a = state_comma_action
-        return self.q_[s][a]
-
-    def __setitem__(self, state_comma_action, q_value):
-        s, a = state_comma_action
-        self.q_[s][a] = q_value
-
-    def items(self):  # not sure this is used
-        raise Exception()
-        return self.q_.items()
-
-    def to_dict(self):
-        # Convert to a regular dictionary
-        d = {s: {a: Q for a, Q in Qs.items()} for s, Qs in self.q_.items()}
-        return d
 
 
 # class QAgent(TabularAgent):
