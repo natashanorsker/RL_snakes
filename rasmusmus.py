@@ -1,8 +1,44 @@
 import numpy as np
+from collections import deque
 from gym_snake.envs.snake import Snake
 from gym_snake.envs.snake_env import SnakeEnv
 from gym_snake.envs.snake.controller import Controller
 from gym_snake.envs.snake.grid import Grid
+
+
+class Mod_Snake(Snake):
+    def __init__(self, head_coord_start,  grid_size, length=3, random_start=True):
+        """
+        head_coord_start - tuple, list, or ndarray denoting the starting coordinates for the snake's head
+        length - starting number of units in snake's body
+        """
+
+        self.direction = self.DOWN
+        self.body = deque()
+        self.dir_array = np.array([[0, 1], [1, 0], [0, -1], [-1, 0]])
+        if not random_start:
+            self.head = np.asarray(head_coord_start).astype(np.int)
+            for i in range(length - 1, 0, -1):
+                self.body.append(self.head - np.asarray([0, i]).astype(np.int))
+        else:
+            self.head = np.random.randint(grid_size[0], size=2)
+            dirs = np.arange(4)
+            np.random.shuffle(dirs)
+            for dir in dirs:
+                self.body = deque()
+                for i in range(length - 1, 0, -1):
+                    segment = (self.head - i * self.dir_array[dir]).astype(np.int)
+                    if not np.any(segment < 0) and not np.any(segment > grid_size[0]-1):
+                        self.body.append(segment)
+                    else:
+                        break
+                if len(self.body) + 1 == length:
+                    break
+        self.head_color = np.array([255, 0, 0], np.uint8)
+
+
+
+
 
 class Mod_Grid(Grid):
     def __init__(self, grid_size=[30, 30], unit_size=10, unit_gap=1):
@@ -58,7 +94,7 @@ class Mod_Controller(Controller):
         self.dead_snakes = []
         for i in range(1, n_snakes + 1):
             start_coord = [i * grid_size[0] // (n_snakes + 1), snake_size + 1]
-            self.snakes.append(Snake(start_coord, snake_size))
+            self.snakes.append(Mod_Snake(head_coord_start=start_coord, length=snake_size, grid_size=grid_size, random_start=True))
             color = [self.grid.HEAD_COLOR[0], i * 10, 0]
             self.snakes[-1].head_color = color
             self.grid.draw_snake(self.snakes[-1], color)
@@ -129,7 +165,7 @@ class Mod_Controller(Controller):
             self.snakes[snake_idx] = None
             self.grid.cover(snake.head, snake.head_color) # Avoid miscount of grid.open_space
             self.grid.connect(snake.body.popleft(), snake.body[0], self.grid.SPACE_COLOR)
-            reward = -1
+            reward = -10
         # Check for reward
         elif self.grid.food_space(snake.head):
             self.grid.draw(snake.body[0], self.grid.BODY_COLOR) # Redraw tail
@@ -138,7 +174,7 @@ class Mod_Controller(Controller):
             reward = 10
             self.grid.new_food()
         else:
-            reward = -0.1
+            reward = -1
             empty_coord = snake.body.popleft()
             self.grid.connect(empty_coord, snake.body[0], self.grid.SPACE_COLOR)
             self.grid.draw(snake.head, snake.head_color)
