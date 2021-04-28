@@ -1,7 +1,7 @@
 import irlc
 from irlc.ex09.rl_agent import TabularAgent, TabularQ
 from irlc.ex09.rl_agent import TabularAgent
-from irlc import train
+from qtrain import qtrain
 import gym
 from irlc import main_plot
 import matplotlib.pyplot as plt
@@ -11,26 +11,29 @@ from rasmusmus import *
 
 
 # Set total number of episodes
-n_episodes = 1000000
+n_episodes = 100000
 
-epsilon = 0.1
+epsilon = 1 # Exploration rate
+decay_epsilon = (True, 2, 500)
+
+alpha = 0.5 # Learning Rate
+gamma = 0.99 # Discount Factor
+
+
 max_runs = 10
-max_steps = 5000
-
-alpha = 0.5
+max_steps = 10000
 
 grid_size = [30, 30]
 def qsnake():
     # Make environment instance
     env = Snake_env()
     env.grid_size = grid_size
-    agent = QAgent(env, epsilon=epsilon, alpha=alpha)
+    agent = QAgent(env, gamma=gamma, epsilon=epsilon, alpha=alpha)
 
-    stats, trajectories, agent = train(env, agent, num_episodes=n_episodes//2, max_runs=max_runs,
-                                       return_agent=True, max_steps=max_steps)
-    agent.epsilon = 0
-    stats, trajectories, agent = train(env, agent, num_episodes=n_episodes//2, max_runs=max_runs,
-                                       return_agent=True, max_steps=max_steps)
+    stats, trajectories, agent = qtrain(env, agent, num_episodes=n_episodes, max_runs=max_runs,
+                                       return_agent=True, max_steps=max_steps, decay_epsilon=decay_epsilon)
+    print(agent.epsilon)
+    # print(stats)
     return env, agent
 
 

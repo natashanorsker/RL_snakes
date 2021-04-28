@@ -12,14 +12,14 @@ import shutil
 fields = ('time', 'state', 'action', 'reward')
 Trajectory = namedtuple('Trajectory', fields + ("env_info",))
 
-def train(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=True, max_steps=1e10,
+def qtrain(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=True, max_steps=1e10,
           max_runs=None,
           return_trajectory=False, # Return the current trajectories as a list
           resume_stats=None, # Resume stat collection from last save. None implies same as saveload_model
           log_interval=1, # Only log every log_interval steps. Reduces size of log files.
           delete_old_experiments=False,
-          return_agent=False
-          ):
+          return_agent=False,
+          decay_epsilon=(False, None, None)):
     """
     Implement the main training loop, see (Her21, Subsection 1.4.4).
     Simulate the interaction between agent `agent` and the environment `env`.
@@ -54,6 +54,7 @@ def train(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=
     :param return_trajectory: Return trajectories list (Off by default since it might consume lots of memory)
     :param resume_stats: Resume stat collection from last run (requires `experiment_name`)
     :param log_interval: Log stats less frequently
+    :param decay_epsilon: Decay epsilon over time
     :return: stats, trajectories (both as lists)
     """
     from irlc import cache_write
@@ -89,8 +90,16 @@ def train(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=
     trajectories = []
     include_metadata = len(inspect.getfullargspec(agent.train).args) >= 7
 
+    # Epsilon decay value
+    decay_eps, stop_ratio, every = decay_epsilon
+    if decay_eps:
+        stop_episode = num_episodes // stop_ratio
+        decay_value = agent.epsilon / stop_episode * every
+
     with tqdm(total=num_episodes, disable=not verbose, file=sys.stdout) as tq:
         for i_episode in range(num_episodes):
+            if not i_episode % every:
+                agent.epsilon = max(agent.epsilon - decay_value, 0)
             if reset or i_episode > 0:
                 s = env.reset()
             elif hasattr(env, "s"):

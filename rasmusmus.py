@@ -104,12 +104,10 @@ class Mod_Controller(Controller):
         obs_list[5] = self.get_food_dir()
         for i in range(4):
             coord = head + self.dir_array[i]
-            if self.grid.off_grid(coord):
+            if self.grid.off_grid(coord) or np.any([np.all(coord == arr) for arr in self.snakes[0].body]):
                 obs_list[i] = 1
-            elif np.any([np.all(coord == arr) for arr in self.snakes[0].body]):
-                obs_list[i] = 2
             elif self.grid.food_space(coord):
-                obs_list[i] = 3
+                obs_list[i] = 2
             else:
                 obs_list[i] = 0
         return tuple(obs_list)
@@ -131,16 +129,16 @@ class Mod_Controller(Controller):
             self.snakes[snake_idx] = None
             self.grid.cover(snake.head, snake.head_color) # Avoid miscount of grid.open_space
             self.grid.connect(snake.body.popleft(), snake.body[0], self.grid.SPACE_COLOR)
-            reward = -10
+            reward = -1
         # Check for reward
         elif self.grid.food_space(snake.head):
             self.grid.draw(snake.body[0], self.grid.BODY_COLOR) # Redraw tail
             self.grid.connect(snake.body[0], snake.body[1], self.grid.BODY_COLOR)
             self.grid.cover(snake.head, snake.head_color) # Avoid miscount of grid.open_space
-            reward = 1000
+            reward = 10
             self.grid.new_food()
         else:
-            reward = -1
+            reward = -0.01
             empty_coord = snake.body.popleft()
             self.grid.connect(empty_coord, snake.body[0], self.grid.SPACE_COLOR)
             self.grid.draw(snake.head, snake.head_color)
@@ -160,7 +158,7 @@ class Mod_Controller(Controller):
 
         # Ensure no more play until reset
         if self.snakes_remaining < 1 or self.grid.open_space < 1:
-            if type(directions) == type(int()) or len(directions) is 1:
+            if type(directions) == type(int()) or len(directions) == 1:
                 return self.obs(), 0, True, {"snakes_remaining": self.snakes_remaining}
             else:
                 return self.obs(), [0] * len(directions), True, {"snakes_remaining": self.snakes_remaining}
@@ -177,7 +175,7 @@ class Mod_Controller(Controller):
             rewards.append(self.move_result(direction, i))
 
         done = self.snakes_remaining < 1 or self.grid.open_space < 1
-        if len(rewards) is 1:
+        if len(rewards) == 1:
             return self.obs(), rewards[0], done, {"snakes_remaining": self.snakes_remaining}
         else:
             return self.obs(), rewards, done, {"snakes_remaining": self.snakes_remaining}
