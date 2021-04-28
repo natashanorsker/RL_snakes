@@ -96,12 +96,12 @@ class Mod_Controller(Controller):
             return 4
 
     def obs(self):
-        obs_list = [-1] * 6
+        obs_list = [-1] * 5
         if self.snakes[0] == None:
             return tuple(obs_list)
         head = self.snakes[0].head
-        obs_list[4] = self.snakes[0].direction
-        obs_list[5] = self.get_food_dir()
+        # obs_list[4] = self.snakes[0].direction
+        obs_list[4] = self.get_food_dir()
         for i in range(4):
             coord = head + self.dir_array[i]
             if self.grid.off_grid(coord) or np.any([np.all(coord == arr) for arr in self.snakes[0].body]):
