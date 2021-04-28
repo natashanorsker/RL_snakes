@@ -16,9 +16,9 @@ class PolicyIterationAgent(Agent):
         self.pi, self.v = policy_iteration(env, gamma)
         super().__init__(self)
 
-    def pi(self, s, k=None): 
-        # TODO: 1 lines missing.
-        raise NotImplementedError("Implement function body")
+    def pi(self, s, k=None):
+        return self.pi(s)
+        #raise NotImplementedError("Implement function body")
 
     def train(self, s, a, r, sp, done=False):
         pass
@@ -41,8 +41,14 @@ def policy_iteration(env, gamma=1.0):
         # Implement the steps for policy improvement here. Start by writing a for-loop over all states
         # and implement the function body.
         # I recommend looking at the property env.nonterminal_states (see MDP class for more information).
-        # TODO: 6 lines missing.
-        raise NotImplementedError("")
+        for s in env.nonterminal_states:
+            pi_old = pi[s]
+            Qs = qs_(env, s, gamma, V)
+            pi[s] = max(Qs, key=lambda a: Qs[a])
+            if pi_old != pi[s]:
+                policy_stable = False
+
+        # raise NotImplementedError("")
     return pi, V
 
 if __name__ == "__main__":

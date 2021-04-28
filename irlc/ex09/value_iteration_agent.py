@@ -17,8 +17,8 @@ class ValueIterationAgent(TabularAgent):
             else:
                 raise Exception("Must supply a MDP so I can plan!")
         self.epsilon = epsilon
-        # TODO: 1 lines missing.
-        raise NotImplementedError("")
+        self.policy, self.v = value_iteration(mdp, gamma)
+        # raise NotImplementedError("")
 
     def pi(self, s, k=0):
         """ With probability (1-epsilon), the take optimal action as computed using value iteration
@@ -27,8 +27,8 @@ class ValueIterationAgent(TabularAgent):
         if np.random.rand() < self.epsilon:
             return self.random_pi(s)
         else: 
-            # TODO: 1 lines missing.
-            raise NotImplementedError("Implement function body")
+            return self.policy[s]
+            # raise NotImplementedError("Implement function body")
 
 if __name__ == "__main__":
     from irlc.gridworld.gridworld import BookGridEnvironment, SuttonCornerGridEnvironment

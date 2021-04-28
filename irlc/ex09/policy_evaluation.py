@@ -25,8 +25,8 @@ def qs_(mdp, s, gamma, v):
     Q(s,a) = E[ r + gamma * v[s'] | s,a]
 
      """
-    # TODO: 1 lines missing.
-    raise NotImplementedError("Implement function body")
+    return {a: np.sum([sr[1] + gamma * v[sr[0]] * p for sr, p in mdp.Psr(s,a).items()])  for a in mdp.A(s)}
+    # raise NotImplementedError("Implement function body")
 
 def policy_evaluation(pi, env, gamma=.99, theta=0.00001):
     v = defaultdict(float)
@@ -35,8 +35,11 @@ def policy_evaluation(pi, env, gamma=.99, theta=0.00001):
         delta = 0 # Remember to update delta.
         for s in env.nonterminal_states: # this code works and iterate over all non-terminal states. See the MDP class if you are curious about the implementation
             # Implement the main body of the policy evaluation algorithm here
-            # TODO: 2 lines missing.
-            raise NotImplementedError("")
+            v_ = v[s]
+            # v[s] = sum([pi[s][a] * Qsa for a, Qsa in qs_(env, s, gamma, v).items()])
+            Qs = qs_(env, s, gamma, v)
+            v[s] = sum([p * Qs[a] for a, p in pi[s].items()])
+            # raise NotImplementedError("")
             delta = max(delta, np.abs(v_ - v[s])) # stop condition. v_ is the old value of the value function (see algorithm listing in (SB18))
     return v
 

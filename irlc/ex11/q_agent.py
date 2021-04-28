@@ -27,8 +27,8 @@ class QAgent(TabularAgent):
         Return current action using epsilon-greedy exploration. Look at the TabularAgent class
         for ideas.
         """
-        return self.pi_eps()
-        raise NotImplementedError("Implement function body")
+        return self.pi_eps(s)
+        # raise NotImplementedError("Implement function body")
 
     def train(self, s, a, r, sp, done=False):
         """
@@ -39,8 +39,8 @@ class QAgent(TabularAgent):
         You may want to look at self.Q.get_optimal_action(state) to compute a = argmax_a Q[s,a].
         """
         astar = self.Q.get_optimal_action(sp)
-        maxQ = self.Q[sp][astar]
-        self.Q[s][a] = self.Q[s][a] + self.alpha * (r + self.gamma * maxQ - self.Q[s][a])
+        maxQ = self.Q[sp,astar]
+        self.Q[s, a] = self.Q[s, a] + self.alpha * (r + self.gamma * maxQ - self.Q[s, a])
         # raise NotImplementedError("Implement function body")
 
     def __str__(self):

@@ -12,8 +12,10 @@ def value_iteration(mdp, gamma=.99, theta=0.0001, max_iters=10 ** 6, verbose=Fal
     for i in range(max_iters):
         delta = 0
         for s in mdp.nonterminal_states:
-            # TODO: 2 lines missing.
-            raise NotImplementedError("")
+            v = V[s]
+            V[s] = max(qs_(mdp, s, gamma, V).values())
+            delta = max(delta, abs(v - V[s]))
+            # raise NotImplementedError("")
         if verbose:
             print(i, delta)
         if delta < theta:
@@ -27,8 +29,9 @@ def values2policy(mdp, V, gamma):
         # Create the policy here. pi[s] = a is the action to be taken in state s.
         # You can use the qs_ helper function to simplify things and perhaps
         # re-use ideas from the dp.py problem from week 2.
-        # TODO: 2 lines missing.
-        raise NotImplementedError("")
+        Qs = qs_(mdp, s, gamma, V)
+        pi[s] = max(Qs, key=lambda a: Qs[a])
+        # raise NotImplementedError("")
     return pi
 
 if __name__ == "__main__":

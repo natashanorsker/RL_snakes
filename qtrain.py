@@ -1,10 +1,3 @@
-"""
-This file may not be shared/redistributed without permission. Please read copyright notice in the git repo. If this file contains other copyright notices disregard this text.
-
-References:
-  [Her21] Tue Herlau. Sequential decision making. (See 02465_Notes.pdf), 2021.
-
-"""
 import inspect
 import itertools
 import os
@@ -15,46 +8,6 @@ from tqdm import tqdm
 from irlc.utils.common import load_time_series, log_time_series
 from irlc.utils.irlc_plot import existing_runs
 import shutil
-
-class Agent: 
-    """ Main agent class. See (Her21, Subsection 1.4.3) for additional details.  """
-    def __init__(self, env): 
-        self.env = env 
-
-    def pi(self, s, k=None): 
-        """ Compute the policy pi_k(s).
-        For discrete application (dynamical programming/search and reinforcement learning), k is discrete k=0, 1, 2, ...
-        For control applications, k is continious and denote simulation time t. 
-
-        :param s: Current state
-        :param k: Current time index.
-        :return: action
-        """ 
-        return self.env.action_space.sample() 
-
-    def train(self, s, a, r, sp, done=False): 
-        """
-        Called at each step of the simulation after a = pi(s,k) and environment transition to sp. 
-        Allows the agent to learn from experience  
-
-        :param s: Current state x_k
-        :param a: Action taken
-        :param r: Reward obtained by taking action a_k in x_k
-        :param sp: State environment transitioned to x_{k+1}
-        :param done: Whether environment terminated when transitioning to sp
-        :return: None
-        """ 
-        pass 
-
-    def __str__(self):
-        """ Optional: A unique name for this agent. Used for labels when plotting, but can be kept like this. """
-        return super().__str__()
-
-    def extra_stats(self):
-        """ Optional: Can be used to record extra information from the Agent while training.
-        You can safely ignore this method. """
-        return {}
-
 
 fields = ('time', 'state', 'action', 'reward')
 Trajectory = namedtuple('Trajectory', fields + ("env_info",))
@@ -137,16 +90,16 @@ def train(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=
     include_metadata = len(inspect.getfullargspec(agent.train).args) >= 7
 
     with tqdm(total=num_episodes, disable=not verbose, file=sys.stdout) as tq:
-        for i_episode in range(num_episodes): 
+        for i_episode in range(num_episodes):
             if reset or i_episode > 0:
-                s = env.reset() 
+                s = env.reset()
             elif hasattr(env, "s"):
                 s = env.s
             elif hasattr(env, 'state'):
                 s = env.state
             else:
                 s = env.model.s
-            time = 0 
+            time = 0
             reward = []
             trajectory = Trajectory(time=[], state=[], action=[], reward=[], env_info=[])
             for _ in itertools.count():
@@ -172,7 +125,7 @@ def train(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset=
                     trajectory.state.append(sp)
                     trajectory.time.append(np.asarray(time))
                     break
-                s = sp 
+                s = sp
             if return_trajectory:
                 try:
                     trajectory = Trajectory(**{field: np.stack([np.asarray(x_) for x_ in getattr(trajectory, field)]) for field in fields}, env_info=trajectory.env_info)
