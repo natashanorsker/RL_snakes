@@ -6,7 +6,7 @@ from gym_snake.envs.snake.grid import Grid
 
 class Mod_Grid(Grid):
     def __init__(self, grid_size=[30, 30], unit_size=10, unit_gap=1):
-        super().__init__(grid_size=[30, 30], unit_size=10, unit_gap=1)
+        super().__init__(grid_size=grid_size, unit_size=unit_size, unit_gap=unit_gap)
 
 
     def place_food(self, coord):
@@ -138,7 +138,7 @@ class Mod_Controller(Controller):
             reward = 10
             self.grid.new_food()
         else:
-            reward = -0.01
+            reward = -0.1
             empty_coord = snake.body.popleft()
             self.grid.connect(empty_coord, snake.body[0], self.grid.SPACE_COLOR)
             self.grid.draw(snake.head, snake.head_color)
@@ -181,8 +181,8 @@ class Mod_Controller(Controller):
             return self.obs(), rewards, done, {"snakes_remaining": self.snakes_remaining}
 
 class Snake_env(SnakeEnv):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, grid_size):
+        super().__init__(grid_size=grid_size)
     # def reset(self):
 
     def step(self, action):

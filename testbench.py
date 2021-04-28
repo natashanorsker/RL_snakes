@@ -1,8 +1,9 @@
 from rasmusmus import *
 
 
+grid_size = [10, 10]
 # Construct Environment
-env = Snake_env()
+env = Snake_env(grid_size=grid_size)
 observation = env.reset() # Constructs an instance of the game
 
 snakes_remaining = 1
