@@ -11,46 +11,47 @@ from rasmusmus import *
 
 
 # Set total number of episodes
-n_episodes = 100000
+n_episodes = 5000
 
 epsilon = 1 # Exploration rate
-decay_epsilon = (True, 2, 500)
+decay_epsilon = (True, 1.45, n_episodes // 100)
 
-alpha = 0.5 # Learning Rate
-gamma = 0.99 # Discount Factor
+alpha = 0.1 # Learning Rate
+gammas = [0.95,0.99,1] # Discount Factor
 
 
 max_runs = 10
-max_steps = 10000
+max_steps = 10000000
 
-grid_size = [30, 30]
-def qsnake():
+grid_sizes = [[20,20]]
+def qsnake(grid_size, gamma):
+    q_exp = f"experiments/grid{grid_size[0]}x{grid_size[0]}/q_gamma{gamma}"
     # Make environment instance
-    env = Snake_env()
-    env.grid_size = grid_size
+    env = Snake_env(grid_size)
     agent = QAgent(env, gamma=gamma, epsilon=epsilon, alpha=alpha)
 
-    stats, trajectories, agent = qtrain(env, agent, num_episodes=n_episodes, max_runs=max_runs,
+    stats, trajectories, agent = qtrain(env, agent, q_exp, num_episodes=n_episodes, max_runs=max_runs,
                                        return_agent=True, max_steps=max_steps, decay_epsilon=decay_epsilon)
-    print(agent.epsilon)
+
     # print(stats)
     return env, agent
 
-
-env, agent = qsnake()
-
-while True:
-    observation = env.reset()  # Constructs an instance of the game
-    snakes_remaining = 1
-    while snakes_remaining != 0:
-        env.render()
-        action = agent.Q.get_optimal_action(observation)
-        observation, reward, done, info = env.step(action)
-        snakes_remaining = info['snakes_remaining']
-        # print('OBS: ' , observation)
-        print(observation)
-        # print('Reward: ' , reward)
-        # print('Done: ' , done)
-        # print('Info: ' , info)
-
-        env.close()
+for grid_size in grid_sizes:
+    for gamma in gammas:
+        for _ in range(4):
+            qsnake(grid_size, gamma)
+# while True:
+#     observation = env.reset()  # Constructs an instance of the game
+#     snakes_remaining = 1
+#     while snakes_remaining != 0:
+#         env.render()
+#         action = agent.Q.get_optimal_action(observation)
+#         observation, reward, done, info = env.step(action)
+#         snakes_remaining = info['snakes_remaining']
+#         # print('OBS: ' , observation)
+#         print(observation)
+#         # print('Reward: ' , reward)
+#         # print('Done: ' , done)
+#         # print('Info: ' , info)
+#
+#         env.close()
