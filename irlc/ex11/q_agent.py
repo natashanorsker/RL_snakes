@@ -11,6 +11,8 @@ from irlc import main_plot
 import matplotlib.pyplot as plt
 from irlc import savepdf
 from irlc.ex09.value_iteration_agent import ValueIterationAgent
+import numpy as np
+
 
 class QAgent(TabularAgent):
     """
@@ -45,6 +47,66 @@ class QAgent(TabularAgent):
 
     def __str__(self):
         return f"QLearner_{self.gamma}_{self.epsilon}_{self.alpha}"
+
+
+class RAgent(TabularAgent):
+    def __init__(self, env, gamma=1.0, alpha=0.5, epsilon=0.1, beta = 0.5):
+        self.alpha = alpha
+        self.beta = beta
+        super().__init__(env, gamma, epsilon)
+        self.rho = 0
+        self.random_action = None
+
+    def pi(self, s, k=None):
+        """
+        Return current action using epsilon-greedy exploration. Look at the TabularAgent class
+        for ideas.
+        """
+        if np.random.rand() < self.epsilon:
+            self.random_action = True
+            return self.random_pi(s)
+        else:
+            self.random_action = False
+            return self.Q.get_optimal_action(s)
+
+        # return self.pi_eps(s)
+        # raise NotImplementedError("Implement function body")
+
+    def train(self, s, a, r, sp, done=False):
+        """
+        Implement the Q-learning update rule, i.e. compute a* from the Q-values.
+        As a hint, note that self.Q[sp,a] corresponds to q(s_{t+1}, a) and
+        that what you need to update is self.Q[s, a] = ...
+
+        You may want to look at self.Q.get_optimal_action(state) to compute a = argmax_a Q[s,a].
+        """
+
+        astar = self.Q.get_optimal_action(sp)
+        maxR = self.Q[sp, astar]
+        if self.random_action == False:
+            self.rho = self.rho + self.beta*(r + maxR - self.Q[s, a] - self.rho)
+        self.Q[s, a] = self.Q[s, a] + self.alpha * (r - self.rho +  maxR - self.Q[s, a])
+        # raise NotImplementedError("Implement function body")
+
+    def __str__(self):
+        return f"RLearner_{self.gamma}_{self.epsilon}_{self.alpha}"
+
+
+
+# class RAgent(QAgent):
+#     def __init__(self):
+#         self.rho = 0
+#         super().__init__(env, gamma, epsilon)
+#
+#     def train(self, s, a, r, sp, done=False):
+
+
+
+
+
+
+
+
 
 q_exp = f"experiments/cliffwalk_Q"
 epsilon = 0.1
