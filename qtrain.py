@@ -130,7 +130,7 @@ def qtrain(env, agent, experiment_name=None, num_episodes=1, verbose=True, reset
                 steps += 1
 
                 time += metadata['dt'] if 'dt' in metadata else 1
-                if done or steps >= max_steps:
+                if done:
                     trajectory.state.append(sp)
                     trajectory.time.append(np.asarray(time))
                     break

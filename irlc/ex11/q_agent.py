@@ -83,9 +83,9 @@ class RAgent(TabularAgent):
 
         astar = self.Q.get_optimal_action(sp)
         maxR = self.Q[sp, astar]
-        if self.random_action == False:
-            self.rho = self.rho + self.beta*(r + maxR - self.Q[s, a] - self.rho)
         self.Q[s, a] = self.Q[s, a] + self.alpha * (r - self.rho +  maxR - self.Q[s, a])
+        if self.random_action == False:
+            self.rho = self.rho + self.beta *(r + maxR - self.Q[s, a] - self.rho)
         # raise NotImplementedError("Implement function body")
 
     def __str__(self):
