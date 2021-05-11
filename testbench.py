@@ -1,4 +1,4 @@
-from rasmusmus import *
+from ModSnake import *
 
 
 grid_size = [10, 10]

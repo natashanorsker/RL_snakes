@@ -7,7 +7,7 @@ from irlc import main_plot
 import matplotlib.pyplot as plt
 from irlc import savepdf
 from irlc.ex11.q_agent import QAgent, RAgent
-from rasmusmus import *
+from ModSnake import *
 
 
 # Set total number of episodes
